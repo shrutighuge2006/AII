@@ -1,89 +1,92 @@
-
-
 from collections import deque
 
-start = ((3, 2, 1), (), ())
+# Model-Based Intelligent Agent for Grid Navigation
 
+# Create the grid
+# 0 = Free cell
+# X = Obstacle
 
-goal = ((), (), (3, 2, 1))
+grid = [
+    ['S', 0, 0, 'X'],
+    [0, 'X', 0, 0],
+    [0, 0, 0, 'X'],
+    ['X', 0, 0, 'G']
+]
 
+# Number of rows and columns
+rows = len(grid)
+cols = len(grid[0])
 
-queue = deque()
+# Start and goal positions
+start = (0, 0)
+goal = (3, 3)
 
-queue.append((start, []))
+# Queue stores current node and path
+queue = deque([(start, [start])])
 
-
+# Internal state (memory): visited cells
 visited = set()
 visited.add(start)
 
+# Possible movements
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
-def get_next_states(state):
+print("Grid Navigation Begins\n")
 
-    next_states = []
+# Variable to store final path
+final_path = None
 
-    
-    rods = [list(rod) for rod in state]
-
-
-    for i in range(3):  
-
-        if not rods[i]:
-            continue  
-
-        disk = rods[i][-1]  
-
-        for j in range(3):  
-
-            if i == j:
-                continue  
-
-            
-            if not rods[j] or rods[j][-1] > disk:
-
-                
-                new_rods = [r[:] for r in rods]
-
-                
-                moved_disk = new_rods[i].pop()
-
-                
-                new_rods[j].append(moved_disk)
-
-                
-                new_state = tuple(tuple(r) for r in new_rods)
-
-               
-                move_text = f"Move disk {disk} from Rod {i+1} to Rod {j+1}"
-
-                next_states.append((new_state, move_text))
-
-    return next_states
-
-
+# Continue until queue becomes empty
 while queue:
 
-   
-    state, path = queue.popleft()
+    # Remove first element
+    current, path = queue.popleft()
 
-    if state == goal:
+    # Display current state
+    print("Current Position:", current)
+    print("Visited:", visited)
 
-        print("Solution found using BFS:\n")
-
-        for step in path:
-            print(step)
-
-        print("\nFinal State:")
-        print(state)
-
+    # Goal test
+    if current == goal:
+        final_path = path
+        print("\nGoal Reached!")
         break
 
-   
-    for next_state, move in get_next_states(state):
+    # Explore neighbours
+    for dr, dc in directions:
 
-        
-        if next_state not in visited:
+        # Compute neighbour coordinates
+        nr = current[0] + dr
+        nc = current[1] + dc
 
-            visited.add(next_state)
+        # Check grid boundary
+        if 0 <= nr < rows and 0 <= nc < cols:
 
-            
-            queue.append((next_state, path + [move]))
+            # Skip obstacles
+            if grid[nr][nc] == 'X':
+                continue
+
+            # Skip visited cells
+            if (nr, nc) in visited:
+                continue
+
+            # Update internal state
+            visited.add((nr, nc))
+
+            # Add neighbour to queue
+            queue.append(((nr, nc), path + [(nr, nc)]))
+
+print("\n================================")
+
+if final_path:
+    print("Path Found:")
+    print(final_path)
+else:
+    print("No path exists.")
+
+print("\nRational Behaviour Analysis")
+print("1. The agent remembers visited cells.")
+print("2. It never revisits explored locations.")
+print("3. It avoids obstacles.")
+print("4. It systematically searches for the goal.")
+print("Hence, it behaves as a Model-Based Intelligent Agent.")
