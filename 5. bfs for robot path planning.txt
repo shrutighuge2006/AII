@@ -1,0 +1,79 @@
+from collections import deque
+
+# 0 = Free cell, X = Obstacle
+grid = [
+    ['S', 0, 0, 'X', 0],
+    [0, 'X', 0, 'X', 0],
+    [0, 'X', 0, 0, 0],
+    [0, 0, 0, 'X', 0],
+    ['X', 'X', 0, 0, 'G']
+]
+
+rows = len(grid)
+cols = len(grid[0])
+
+start = (0, 0)
+goal = (4, 4)
+
+# Possible movements: Up, Down, Left, Right
+directions = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+# Queue stores the current position and path
+queue = deque([(start, [start])])
+
+# Remember visited positions
+visited = {start}
+
+final_path = None
+
+# BFS algorithm
+while queue:
+
+    current, path = queue.popleft()
+
+    # Check whether the goal is reached
+    if current == goal:
+        final_path = path
+        break
+
+    # Explore all possible neighbouring cells
+    for dr, dc in directions:
+
+        nr = current[0] + dr
+        nc = current[1] + dc
+
+        # Check grid boundaries
+        if 0 <= nr < rows and 0 <= nc < cols:
+
+            # Avoid obstacles and visited cells
+            if grid[nr][nc] == 'X' or (nr, nc) in visited:
+                continue
+
+            visited.add((nr, nc))
+
+            # Add the new position and updated path
+            queue.append(((nr, nc), path + [(nr, nc)]))
+
+# Display the result
+print("Robot Path Planning using BFS\n")
+
+if final_path:
+    print("Shortest Path Found:")
+    print(final_path)
+
+    print("\nNumber of Moves:", len(final_path) - 1)
+
+    # Display the grid with the shortest path
+    display_grid = [row.copy() for row in grid]
+
+    for r, c in final_path:
+        if display_grid[r][c] not in ('S', 'G'):
+            display_grid[r][c] = '*'
+
+    print("\nGrid with Shortest Path:")
+
+    for row in display_grid:
+        print(" ".join(str(cell) for cell in row))
+
+else:
+    print("No path exists.")
